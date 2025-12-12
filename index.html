@@ -3,40 +3,337 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Secret Santa</title>
+  <title>Secret Santa (Kısıtlı)</title>
   <style>
-    body{font-family:system-ui;margin:0;padding:20px;background:#fff;}
-    .box{max-width:720px;margin:0 auto;padding:16px;border:1px solid #ddd;border-radius:12px;}
-    .err{white-space:pre-wrap;color:#b00020;font-weight:700;margin-top:12px;}
+    :root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.5; }
+    body { margin:0; min-height:100vh; display:flex; justify-content:center; align-items:flex-start; padding:18px;
+      background: radial-gradient(circle at top, #ffecd2, #fcb69f); }
+    .card { background: rgba(255,255,255,.92); max-width:720px; width:100%; padding:18px 20px; border-radius:18px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.18); backdrop-filter: blur(10px); }
+    h1,h2,h3 { margin:0 0 8px 0; color:#b22222; }
+    .sub { margin:0 0 14px 0; color:#555; font-size:.92rem; }
+    label { display:block; margin-top:12px; font-weight:700; font-size:.92rem; }
+    input, textarea, select { width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:1px solid #ccc;
+      font-size:.92rem; background:#fff; margin-top:6px; }
+    textarea { min-height:110px; resize: vertical; }
+    .hint { font-size:.82rem; color:#777; margin-top:4px; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    button { border:0; border-radius:999px; padding:10px 16px; font-weight:800; cursor:pointer; font-size:.95rem;
+      background: linear-gradient(135deg, #ff5f6d, #ffc371); color:#fff; box-shadow: 0 10px 25px rgba(0,0,0,.18); }
+    .secondary { background:#eee; color:#333; box-shadow:none; }
+    .box { margin-top:12px; padding:12px 14px; border-radius:12px; background:#fff8e6; border:1px dashed #e0b35b; color:#5c470f; font-size:.9rem; }
+    .result { margin-top:14px; padding:14px; border-radius:12px; background:#f0fff4; border:1px solid #bde5c8; }
+    .err { margin-top:12px; color:#b00020; font-weight:800; white-space:pre-wrap; }
+    .link { margin-top:14px; padding:12px 14px; border-radius:12px; background:#f5f5ff; border:1px solid #cfd4ff; word-break:break-all; font-size:.88rem; }
+    code { background:#f5f5f5; padding:2px 6px; border-radius:6px; }
   </style>
 </head>
 <body>
-  <div class="box" id="app">
-    Yükleniyor…
-  </div>
+  <div class="card" id="app">Yükleniyor…</div>
 
   <script>
     const app = document.getElementById('app');
 
-    function showError(e){
+    function showFatal(e){
+      const msg = String(e && (e.stack || e.message || e));
       app.innerHTML = `
-        <h1>Bir hata oldu</h1>
-        <div class="err">${String(e && (e.stack || e.message || e))}</div>
-        <p>Bu mesajı bana aynen kopyala-yapıştır yaparsan 1 dakikada çözerim.</p>
+        <h1>Hata</h1>
+        <p class="sub">Bu mesajı bana kopyalarsan nokta atışı düzeltirim:</p>
+        <div class="err">${escapeHtml(msg)}</div>
       `;
     }
 
-    try {
-      // Basit test render
-      app.innerHTML = `
-        <h1>Secret Santa</h1>
-        <p>Bu sayfa görünüyorsa JS çalışıyor.</p>
-      `;
-    } catch(e) {
-      showError(e);
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
-    window.addEventListener('error', (ev) => showError(ev.error || ev.message));
+    // ---- UTF-8 safe Base64URL ----
+    function b64UrlEncodeUtf8(str){
+      const bytes = new TextEncoder().encode(str);
+      let bin = "";
+      bytes.forEach(b => bin += String.fromCharCode(b));
+      return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    }
+    function b64UrlDecodeUtf8(b64url){
+      let s = b64url.replace(/-/g,'+').replace(/_/g,'/');
+      while (s.length % 4) s += '=';
+      const bin = atob(s);
+      const bytes = new Uint8Array(bin.length);
+      for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
+    }
+
+    function setEventToUrl(data){
+      const json = JSON.stringify(data);
+      location.hash = 'data=' + b64UrlEncodeUtf8(json);
+    }
+    function getEventFromUrl(){
+      if (!location.hash.startsWith('#data=')) return null;
+      try{
+        const encoded = location.hash.slice(6);
+        const json = b64UrlDecodeUtf8(encoded);
+        const data = JSON.parse(json);
+        if (!data || !Array.isArray(data.participants)) return null;
+        if (!Array.isArray(data.forbiddenPairs)) data.forbiddenPairs = [];
+        if (typeof data.seed !== 'string') data.seed = 'seed';
+        return data;
+      }catch(e){ return null; }
+    }
+
+    // ---- deterministic RNG ----
+    function xmur3(str){
+      let h = 1779033703 ^ str.length;
+      for (let i=0;i<str.length;i++){
+        h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+        h = (h<<13) | (h>>>19);
+      }
+      return function(){
+        h = Math.imul(h ^ (h>>>16), 2246822507);
+        h = Math.imul(h ^ (h>>>13), 3266489909);
+        h ^= h>>>16;
+        return h>>>0;
+      };
+    }
+    function mulberry32(a){
+      return function(){
+        a |= 0; a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a>>>15, 1|a);
+        t = t + Math.imul(t ^ t>>>7, 61|t) ^ t;
+        return ((t ^ t>>>14)>>>0)/4294967296;
+      }
+    }
+    function makeRng(seedStr){
+      const seed = xmur3(seedStr)();
+      return mulberry32(seed);
+    }
+    function shuffle(arr, rng){
+      for (let i=arr.length-1;i>0;i--){
+        const j = Math.floor(rng()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+    function randomSeed(){
+      return Math.random().toString(36).slice(2,10);
+    }
+
+    // ---- forbidden parsing ----
+    function parseForbidden(text){
+      const lines = (text||'').split('\n').map(s=>s.trim()).filter(Boolean);
+      const out = [];
+      for (const line of lines){
+        let parts = null;
+        if (line.includes('|')) parts = line.split('|');
+        else if (line.includes(',')) parts = line.split(',');
+        else if (line.includes(';')) parts = line.split(';');
+        else if (line.includes('->')) parts = line.split('->');
+        if (!parts || parts.length<2) continue;
+        const a = (parts[0]||'').trim();
+        const b = (parts[1]||'').trim();
+        if (a && b) out.push(`${a}|${b}`);
+      }
+      return out;
+    }
+    function forbiddenSet(arr){ return new Set((arr||[]).filter(Boolean)); }
+
+    // ---- constraint matching (backtracking) ----
+    function computeAssignment(names, forbid, seedStr){
+      const n = names.length;
+      const rng = makeRng(seedStr);
+
+      const options = Array.from({length:n}, (_,i)=>{
+        const opts = [];
+        for (let j=0;j<n;j++){
+          if (i===j) continue;
+          const giver = names[i], rec = names[j];
+          if (forbid.has(`${giver}|${rec}`)) continue;
+          opts.push(j);
+        }
+        return shuffle(opts, rng);
+      });
+
+      for (let i=0;i<n;i++) if (options[i].length===0) return null;
+
+      const assigned = Array(n).fill(-1);
+      const used = Array(n).fill(false);
+
+      function pickNext(){
+        let best=-1, bestCount=Infinity;
+        for (let i=0;i<n;i++){
+          if (assigned[i]!==-1) continue;
+          let count=0;
+          for (const r of options[i]) if (!used[r]) count++;
+          if (count<bestCount){ bestCount=count; best=i; }
+        }
+        return best;
+      }
+
+      function bt(done){
+        if (done===n) return true;
+        const g = pickNext();
+        if (g===-1) return false;
+        for (const r of options[g]){
+          if (used[r]) continue;
+          assigned[g]=r; used[r]=true;
+          if (bt(done+1)) return true;
+          used[r]=false; assigned[g]=-1;
+        }
+        return false;
+      }
+
+      return bt(0) ? assigned : null;
+    }
+
+    // ---- UI ----
+    function renderCreate(){
+      app.innerHTML = `
+        <h1>Secret Santa (Kısıtlı)</h1>
+        <p class="sub">Kural: kimse kendine çıkmaz + istediğin yasak eşleşmeler (karı-koca vb.) gerçekleşmez.</p>
+
+        <label>Etkinlik adı</label>
+        <input id="name" type="text" placeholder="Örn: Aile Çekilişi">
+
+        <label>Tarih (isteğe bağlı)</label>
+        <input id="date" type="date">
+
+        <label>Bütçe (isteğe bağlı)</label>
+        <input id="budget" type="number" min="0" step="1" placeholder="Örn: 300">
+
+        <label>Katılımcılar (her satır bir isim)</label>
+        <textarea id="people" placeholder="Ayşe
+Mehmet
+Zeynep"></textarea>
+        <div class="hint">İsimler birebir aynı yazılmalı ve benzersiz olmalı.</div>
+
+        <label>Yasak eşleşmeler (isteğe bağlı)</label>
+        <textarea id="forbidden" placeholder="Ayşe | Mehmet
+Mehmet | Ayşe"></textarea>
+        <div class="hint">“A | B” demek: A kişisi B’ye hediye alamaz. Karı-koca için iki satır yaz.</div>
+
+        <div class="row">
+          <button id="create">Etkinliği Oluştur</button>
+        </div>
+        <div class="err" id="err"></div>
+      `;
+
+      document.getElementById('create').onclick = () => {
+        const err = document.getElementById('err');
+        err.textContent = '';
+
+        const name = document.getElementById('name').value.trim() || 'Secret Santa';
+        const date = document.getElementById('date').value || null;
+        const budgetRaw = document.getElementById('budget').value.trim();
+        const budget = budgetRaw ? Number(budgetRaw) : null;
+
+        const peopleRaw = document.getElementById('people').value.trim();
+        if (!peopleRaw){ err.textContent = 'Katılımcı girmelisin.'; return; }
+
+        const participants = peopleRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+        if (participants.length < 3){ err.textContent = 'En az 3 kişi olmalı.'; return; }
+
+        const uniq = new Set(participants);
+        if (uniq.size !== participants.length){ err.textContent = 'İsimler benzersiz olmalı (Mehmet A., Mehmet B. gibi ayır).'; return; }
+
+        const forbArr = parseForbidden(document.getElementById('forbidden').value);
+        for (const p of forbArr){
+          const [a,b] = p.split('|');
+          if (!uniq.has(a) || !uniq.has(b)){
+            err.textContent = `Yasak eşleşmede listede olmayan isim var: "${a} | ${b}"`;
+            return;
+          }
+        }
+
+        const seed = randomSeed();
+        const forbid = forbiddenSet(forbArr);
+        const assignment = computeAssignment(participants, forbid, seed);
+        if (!assignment){
+          err.textContent = 'Bu kısıtlarla çekiliş mümkün değil. Yasakları azaltmayı deneyin.';
+          return;
+        }
+
+        const data = { name, date, budget, participants, forbiddenPairs: forbArr, seed };
+        setEventToUrl(data);
+        renderParticipant(data);
+      };
+    }
+
+    function renderParticipant(data){
+      const forbid = forbiddenSet(data.forbiddenPairs);
+      const assignment = computeAssignment(data.participants, forbid, data.seed);
+
+      app.innerHTML = `
+        <h1>${escapeHtml(data.name)}</h1>
+        <p class="sub">${data.date ? `Tarih: <b>${escapeHtml(data.date)}</b>` : 'Tarih: belirtilmedi.'}</p>
+
+        ${data.budget!=null ? `<div class="box">Bütçe: yaklaşık <b>${data.budget} ₺</b></div>` : ''}
+
+        <label>İsmini seç</label>
+        <select id="me">
+          <option value="">-- İsmini seç --</option>
+          ${data.participants.map(p=>`<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('')}
+        </select>
+
+        <div class="row">
+          <button id="show">Sonucu Göster</button>
+          <button id="copy" class="secondary">Linki Kopyala</button>
+        </div>
+
+        <div class="result" id="res" style="display:none;"></div>
+        <div class="err" id="err"></div>
+
+        <div class="link"><b>Etkinlik linki:</b><br><span id="link"></span></div>
+        <p class="hint">Anahtar: <code>${escapeHtml(data.seed)}</code> • Yasak kural: <code>${(data.forbiddenPairs||[]).length}</code></p>
+
+        <div class="row">
+          <button id="new" class="secondary">Yeni etkinlik oluştur</button>
+        </div>
+      `;
+
+      document.getElementById('link').textContent = location.href;
+
+      document.getElementById('show').onclick = () => {
+        const err = document.getElementById('err');
+        const res = document.getElementById('res');
+        err.textContent = '';
+        res.style.display = 'none';
+
+        const me = document.getElementById('me').value;
+        if (!me){ err.textContent = 'Önce kendi ismini seç.'; return; }
+        if (!assignment){ err.textContent = 'Bu etkinlikte çekiliş üretilemedi.'; return; }
+
+        const i = data.participants.indexOf(me);
+        const target = data.participants[assignment[i]];
+        res.innerHTML = `
+          <h3>Sonuç</h3>
+          <p><b>${escapeHtml(me)}</b> için hediye alınacak kişi:</p>
+          <p style="font-size:1.35rem;font-weight:900;margin:.3rem 0 0 0;">🎁 ${escapeHtml(target)}</p>
+        `;
+        res.style.display = 'block';
+      };
+
+      document.getElementById('copy').onclick = async () => {
+        try{
+          await navigator.clipboard.writeText(location.href);
+          alert('Link kopyalandı. WhatsApp’a yapıştırabilirsin.');
+        }catch{
+          alert('Kopyalayamadım. Linki elle seçip kopyalayabilirsin.');
+        }
+      };
+
+      document.getElementById('new').onclick = () => {
+        history.pushState("", document.title, location.pathname + location.search);
+        renderCreate();
+      };
+    }
+
+    function init(){
+      const data = getEventFromUrl();
+      if (data) renderParticipant(data);
+      else renderCreate();
+    }
+
+    window.addEventListener('error', ev => showFatal(ev.error || ev.message));
+    try { init(); } catch(e){ showFatal(e); }
   </script>
 </body>
 </html>
