@@ -3,10 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Test</title>
+  <title>Secret Santa</title>
+  <style>
+    body{font-family:system-ui;margin:0;padding:20px;background:#fff;}
+    .box{max-width:720px;margin:0 auto;padding:16px;border:1px solid #ddd;border-radius:12px;}
+    .err{white-space:pre-wrap;color:#b00020;font-weight:700;margin-top:12px;}
+  </style>
 </head>
-<body style="font-family:system-ui;padding:24px">
-  <h1>ÇALIŞIYOR ✅</h1>
-  <p>Eğer bunu görüyorsan GitHub Pages doğru yayın yapıyor.</p>
+<body>
+  <div class="box" id="app">
+    Yükleniyor…
+  </div>
+
+  <script>
+    const app = document.getElementById('app');
+
+    function showError(e){
+      app.innerHTML = `
+        <h1>Bir hata oldu</h1>
+        <div class="err">${String(e && (e.stack || e.message || e))}</div>
+        <p>Bu mesajı bana aynen kopyala-yapıştır yaparsan 1 dakikada çözerim.</p>
+      `;
+    }
+
+    try {
+      // Basit test render
+      app.innerHTML = `
+        <h1>Secret Santa</h1>
+        <p>Bu sayfa görünüyorsa JS çalışıyor.</p>
+      `;
+    } catch(e) {
+      showError(e);
+    }
+
+    window.addEventListener('error', (ev) => showError(ev.error || ev.message));
+  </script>
 </body>
 </html>
