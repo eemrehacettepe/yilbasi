@@ -2,187 +2,65 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Secret Santa – Aile & Arkadaş Grubu</title>
+  <title>Yılbaşı Çekilişi (Kısıtlı)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.5;
-      color-scheme: light dark;
-    }
-
+    :root { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; }
     body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 1.5rem;
-      background: radial-gradient(circle at top, #ffecd2, #fcb69f);
+      margin: 0; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start;
+      padding: 1.5rem; background: radial-gradient(circle at top, #ffecd2, #fcb69f);
     }
-
     .card {
-      background: rgba(255, 255, 255, 0.9);
-      max-width: 600px;
-      width: 100%;
-      padding: 1.5rem 1.75rem;
-      border-radius: 18px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
-      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.92); max-width: 680px; width: 100%;
+      padding: 1.5rem 1.75rem; border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.18); backdrop-filter: blur(10px);
     }
-
-    h1, h2, h3 {
-      margin-top: 0;
-      color: #b22222;
+    h1,h2,h3 { margin-top: 0; color: #b22222; }
+    .subtitle { margin-top: -0.5rem; margin-bottom: 1rem; font-size: 0.9rem; color: #555; }
+    label { display:block; margin-top: 0.9rem; font-weight: 700; font-size: 0.9rem; }
+    input[type="text"], input[type="date"], input[type="number"], textarea, select {
+      width: 100%; padding: 0.55rem 0.7rem; border-radius: 10px; border: 1px solid #ccc;
+      margin-top: 0.3rem; box-sizing: border-box; font-size: 0.9rem; background: #fff;
     }
-
-    .subtitle {
-      margin-top: -0.5rem;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    label {
-      display: block;
-      margin-top: 0.9rem;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    input[type="text"],
-    input[type="date"],
-    input[type="number"],
-    textarea,
-    select {
-      width: 100%;
-      padding: 0.55rem 0.7rem;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin-top: 0.3rem;
-      box-sizing: border-box;
-      font-size: 0.9rem;
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
+    textarea { min-height: 120px; resize: vertical; }
     button {
-      border: none;
-      border-radius: 999px;
-      padding: 0.6rem 1.3rem;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      margin-top: 1rem;
-      background: linear-gradient(135deg, #ff5f6d, #ffc371);
-      color: #fff;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+      border: none; border-radius: 999px; padding: 0.6rem 1.3rem; font-weight: 700; font-size: 0.95rem;
+      cursor: pointer; margin-top: 1rem; background: linear-gradient(135deg, #ff5f6d, #ffc371);
+      color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.18);
       transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s;
     }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 13px 30px rgba(0, 0, 0, 0.25);
-      opacity: 0.95;
-    }
-
-    button:active {
-      transform: translateY(1px) scale(0.99);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-secondary {
-      background: #eee;
-      color: #333;
-      box-shadow: none;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-
+    button:hover { transform: translateY(-1px); box-shadow: 0 13px 30px rgba(0,0,0,0.25); opacity: 0.95; }
+    button:active { transform: translateY(1px) scale(0.99); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+    .btn-secondary { background: #eee; color: #333; box-shadow: none; }
+    .btn-row { display:flex; gap: 0.6rem; flex-wrap: wrap; }
     .info-box {
-      background: #fff8e6;
-      border-radius: 12px;
-      padding: 0.7rem 0.8rem;
-      font-size: 0.85rem;
-      margin-top: 0.7rem;
-      border: 1px dashed #e0b35b;
-      color: #5c470f;
+      background: #fff8e6; border-radius: 12px; padding: 0.7rem 0.8rem; font-size: 0.85rem;
+      margin-top: 0.7rem; border: 1px dashed #e0b35b; color: #5c470f;
     }
-
     .result-box {
-      background: #f0fff4;
-      border-radius: 12px;
-      padding: 0.9rem 1rem;
-      border: 1px solid #bde5c8;
-      margin-top: 1rem;
-      font-size: 0.95rem;
+      background: #f0fff4; border-radius: 12px; padding: 0.9rem 1rem;
+      border: 1px solid #bde5c8; margin-top: 1rem; font-size: 0.95rem;
     }
-
-    .error {
-      color: #b00020;
-      font-size: 0.85rem;
-      margin-top: 0.4rem;
-    }
-
-    .field-hint {
-      font-size: 0.8rem;
-      color: #777;
-      margin-top: 0.15rem;
-    }
-
-    .small-meta {
-      font-size: 0.8rem;
-      color: #666;
-    }
-
-    code {
-      font-size: 0.8rem;
-      padding: 0.15rem 0.3rem;
-      border-radius: 4px;
-      background: #f5f5f5;
-    }
-
+    .error { color: #b00020; font-size: 0.9rem; margin-top: 0.6rem; font-weight: 600; }
+    .field-hint { font-size: 0.8rem; color: #777; margin-top: 0.15rem; }
+    .small-meta { font-size: 0.8rem; color: #666; }
+    code { font-size: 0.8rem; padding: 0.15rem 0.3rem; border-radius: 4px; background: #f5f5f5; }
     .link-box {
-      background: #f5f5ff;
-      border-radius: 12px;
-      padding: 0.75rem 0.9rem;
-      font-size: 0.85rem;
-      border: 1px solid #cfd4ff;
-      margin-top: 0.9rem;
-      word-break: break-all;
+      background: #f5f5ff; border-radius: 12px; padding: 0.75rem 0.9rem; font-size: 0.85rem;
+      border: 1px solid #cfd4ff; margin-top: 0.9rem; word-break: break-all;
     }
-
-    @media (max-width: 640px) {
-      body {
-        padding: 0.75rem;
-      }
-      .card {
-        padding: 1.1rem 1.2rem;
-        border-radius: 14px;
-      }
-    }
+    @media (max-width: 640px) { body{padding:0.75rem;} .card{padding:1.1rem 1.2rem; border-radius:14px;} }
   </style>
 </head>
 <body>
-  <div class="card" id="app">
-    <!-- JS burayı dolduracak -->
-  </div>
+  <div class="card" id="app"></div>
 
   <script>
-    // ---------- Yardımcı fonksiyonlar ----------
+    // ------------------ URL encode/decode ------------------
 
     function base64UrlEncode(str) {
       return btoa(unescape(encodeURIComponent(str)))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
     function base64UrlDecode(str) {
@@ -191,7 +69,30 @@
       return decodeURIComponent(escape(atob(str)));
     }
 
-    // Basit seed'li random (deterministik)
+    function getEventFromUrl() {
+      const hash = window.location.hash;
+      if (!hash.startsWith('#data=')) return null;
+      try {
+        const encoded = hash.slice(6);
+        const json = base64UrlDecode(encoded);
+        const data = JSON.parse(json);
+        if (!data || !Array.isArray(data.participants)) return null;
+        // forbiddenPairs: array of "A|B"
+        if (!Array.isArray(data.forbiddenPairs)) data.forbiddenPairs = [];
+        return data;
+      } catch {
+        return null;
+      }
+    }
+
+    function setEventToUrl(data) {
+      const json = JSON.stringify(data);
+      const encoded = base64UrlEncode(json);
+      window.location.hash = 'data=' + encoded;
+    }
+
+    // ------------------ Deterministic RNG ------------------
+
     function xmur3(str) {
       let h = 1779033703 ^ str.length;
       for (let i = 0; i < str.length; i++) {
@@ -218,65 +119,126 @@
 
     function makeSeededRng(seedStr) {
       const seedFn = xmur3(seedStr);
-      const a = seedFn();
-      return mulberry32(a);
+      return mulberry32(seedFn());
     }
 
-    // İsimlerden derangement (kimse kendini çekmiyor) üret
-    function makeDerangement(names, seedStr) {
-      const rng = makeSeededRng(seedStr);
-      const indices = names.map((_, i) => i);
-
-      // Fisher-Yates shuffle
-      for (let i = indices.length - 1; i > 0; i--) {
+    function shuffleInPlace(arr, rng) {
+      for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(rng() * (i + 1));
-        [indices[i], indices[j]] = [indices[j], indices[i]];
+        [arr[i], arr[j]] = [arr[j], arr[i]];
       }
-
-      // Sabit nokta varsa düzelt (kimse kendine çıkmasın)
-      for (let i = 0; i < indices.length; i++) {
-        if (indices[i] === i) {
-          const swapWith = (i + 1) % indices.length;
-          [indices[i], indices[swapWith]] = [indices[swapWith], indices[i]];
-        }
-      }
-      return indices;
+      return arr;
     }
 
     function randomSeed() {
       return Math.random().toString(36).slice(2, 10);
     }
 
-    // URL'den etkinlik verisini çek
-    function getEventFromUrl() {
-      const hash = window.location.hash;
-      if (!hash.startsWith('#data=')) return null;
-      try {
-        const encoded = hash.slice(6);
-        const json = base64UrlDecode(encoded);
-        const data = JSON.parse(json);
-        if (!data || !Array.isArray(data.participants)) return null;
-        return data;
-      } catch (e) {
-        console.error('Etkinlik verisi çözülemedi', e);
-        return null;
+    // ------------------ Forbidden parsing ------------------
+
+    // Kullanıcı: satır satır "Ayşe | Mehmet" ya da "Ayşe,Mehmet" yazabilir
+    function parseForbiddenTextarea(text) {
+      const lines = (text || '').split('\n').map(s => s.trim()).filter(Boolean);
+      const pairs = [];
+      for (const line of lines) {
+        // ayırıcı: | veya , veya ; veya ->
+        let parts = null;
+
+        if (line.includes('|')) parts = line.split('|');
+        else if (line.includes(',')) parts = line.split(',');
+        else if (line.includes(';')) parts = line.split(';');
+        else if (line.includes('->')) parts = line.split('->');
+
+        if (!parts || parts.length < 2) continue;
+
+        const a = (parts[0] || '').trim();
+        const b = (parts[1] || '').trim();
+        if (a && b) pairs.push(`${a}|${b}`);
       }
+      return pairs;
     }
 
-    function setEventToUrl(data) {
-      const json = JSON.stringify(data);
-      const encoded = base64UrlEncode(json);
-      window.location.hash = 'data=' + encoded;
+    function buildForbiddenSet(forbiddenPairsArray) {
+      return new Set((forbiddenPairsArray || []).filter(Boolean));
     }
 
-    // ---------- UI render ----------
+    // ------------------ Constraint matching (Backtracking) ------------------
+
+    // returns assignment array 'receiverIndexForGiverIndex' or null
+    function computeAssignment(names, forbiddenSet, seedStr) {
+      const n = names.length;
+      const rng = makeSeededRng(seedStr);
+
+      // receivers list for each giver
+      const options = Array.from({length: n}, (_, i) => {
+        const opts = [];
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue; // no self
+          const giver = names[i];
+          const receiver = names[j];
+          if (forbiddenSet.has(`${giver}|${receiver}`)) continue;
+          opts.push(j);
+        }
+        // deterministic random order
+        return shuffleInPlace(opts, rng);
+      });
+
+      // Fail fast: someone has no options
+      for (let i = 0; i < n; i++) {
+        if (options[i].length === 0) return null;
+      }
+
+      const assignedReceiver = Array(n).fill(-1);
+      const usedReceiver = Array(n).fill(false);
+
+      // choose next giver by MRV (minimum remaining values)
+      function pickNextGiver() {
+        let best = -1;
+        let bestCount = Infinity;
+        for (let i = 0; i < n; i++) {
+          if (assignedReceiver[i] !== -1) continue;
+          let count = 0;
+          for (const r of options[i]) if (!usedReceiver[r]) count++;
+          if (count < bestCount) {
+            bestCount = count;
+            best = i;
+          }
+        }
+        return best;
+      }
+
+      function backtrack(filled) {
+        if (filled === n) return true;
+
+        const giverIndex = pickNextGiver();
+        if (giverIndex === -1) return false;
+
+        // try candidates
+        for (const rIndex of options[giverIndex]) {
+          if (usedReceiver[rIndex]) continue;
+          assignedReceiver[giverIndex] = rIndex;
+          usedReceiver[rIndex] = true;
+
+          if (backtrack(filled + 1)) return true;
+
+          usedReceiver[rIndex] = false;
+          assignedReceiver[giverIndex] = -1;
+        }
+        return false;
+      }
+
+      const ok = backtrack(0);
+      return ok ? assignedReceiver : null;
+    }
+
+    // ------------------ UI ------------------
 
     const app = document.getElementById('app');
 
     function renderCreateView() {
       app.innerHTML = `
-        <h1>Secret Santa Etkinliği Oluştur</h1>
-        <p class="subtitle">E-posta, telefon yok. Linki paylaş, herkes adını girip kime hediye alacağını görsün.</p>
+        <h1>Yılbaşı Çekilişi Etkinliği Oluştur</h1>
+        <p class="subtitle">Kısıtlı çekiliş: kimse kendine çıkmaz + istediğin “yasak eşleşmeler” (ör. karı-koca) oluşmaz.</p>
 
         <label>Etkinlik adı</label>
         <input id="event-name" type="text" placeholder="Örn: Aile Yılbaşı Çekilişi">
@@ -285,200 +247,4 @@
         <input id="event-date" type="date">
 
         <label>Bütçe (isteğe bağlı)</label>
-        <input id="event-budget" type="number" min="0" step="1" placeholder="Örn: 300">
-
-        <label>Katılımcı listesi</label>
-        <textarea id="event-participants" placeholder="Her satıra bir isim yazın:
-Ayşe
-Mehmet
-Zeynep
-..."></textarea>
-        <div class="field-hint">Tüm isimler benzersiz olmalı. Aynı isim varsa yanına soyad/ilk harf ekleyin (Mehmet A., Mehmet B.).</div>
-
-        <div class="info-box">
-          Kurallar:
-          <ul style="margin: 0.3rem 0 0 1.2rem; padding: 0;">
-            <li>Çekiliş, isimler ve gizli bir anahtara göre <strong>deterministik</strong> yapılır.</li>
-            <li>Linki gören herkes aynı eşleşmeleri görür.</li>
-            <li>Kimin kimi çektiği sayfaya kaydedilmez, sadece kişinin ekranında gösterilir.</li>
-          </ul>
-        </div>
-
-        <div class="btn-row">
-          <button id="create-btn">Etkinliği Oluştur</button>
-        </div>
-        <div class="error" id="create-error"></div>
-      `;
-
-      document.getElementById('create-btn').addEventListener('click', () => {
-        const name = document.getElementById('event-name').value.trim();
-        const date = document.getElementById('event-date').value;
-        const budgetRaw = document.getElementById('event-budget').value.trim();
-        const participantsRaw = document.getElementById('event-participants').value.trim();
-        const errorEl = document.getElementById('create-error');
-        errorEl.textContent = '';
-
-        if (!participantsRaw) {
-          errorEl.textContent = 'En az 3 katılımcı girmeniz gerekir.';
-          return;
-        }
-
-        let participants = participantsRaw
-          .split('\n')
-          .map(s => s.trim())
-          .filter(Boolean);
-
-        const unique = new Set(participants);
-        if (unique.size !== participants.length) {
-          errorEl.textContent = 'İsimler benzersiz olmalı. Aynı isimleri ayırt etmek için soyad/ilk harf ekleyin.';
-          return;
-        }
-
-        if (participants.length < 3) {
-          errorEl.textContent = 'Secret Santa için en az 3 kişi olmalı.';
-          return;
-        }
-
-        const budget = budgetRaw ? Number(budgetRaw) : null;
-
-        const eventData = {
-          name: name || 'Secret Santa',
-          date: date || null,
-          budget: budget,
-          participants: participants,
-          seed: randomSeed()
-        };
-
-        setEventToUrl(eventData);
-        renderParticipantView(eventData, true);
-      });
-    }
-
-    function renderParticipantView(eventData, justCreated = false) {
-      const { name, date, budget, participants, seed } = eventData;
-
-      app.innerHTML = `
-        <h1>${name || 'Secret Santa'}</h1>
-        <p class="subtitle">
-          ${
-            date
-              ? `Etkinlik tarihi: <strong>${date}</strong>`
-              : 'Tarih: katılımcılar kendi aranızda belirleyin.'
-          }
-        </p>
-
-        ${
-          budget != null
-            ? `<div class="info-box">Hediye bütçesi: yaklaşık <strong>${budget} ₺</strong></div>`
-            : ''
-        }
-
-        <label>İsmini seç</label>
-        <select id="participant-select">
-          <option value="">-- İsmini seç --</option>
-          ${participants.map(p => `<option value="${p}">${p}</option>`).join('')}
-        </select>
-        <div class="field-hint">Bu isim listesi sadece bu etkinliğe özeldir. Herkes kendi adını seçmelidir.</div>
-
-        <div class="btn-row">
-          <button id="show-btn">Kime hediye alacağımı göster</button>
-          <button id="copy-link-btn" class="btn-secondary">Etkinlik linkini kopyala</button>
-        </div>
-
-        <div class="result-box" id="result-box" style="display:none;"></div>
-        <div class="error" id="participant-error"></div>
-
-        <div class="link-box">
-          <strong>Etkinlik linki:</strong><br>
-          <span id="event-link"></span>
-        </div>
-
-        <p class="small-meta">
-          Not: Eşleşmeler, isimler ve gizli bir anahtar (<code>${seed}</code>) kullanılarak belirlenir.
-          Link değişmediği sürece herkes aynı sonuçları görür.
-        </p>
-
-        <div class="btn-row">
-          <button id="back-btn" class="btn-secondary">Yeni etkinlik oluştur</button>
-        </div>
-      `;
-
-      const linkSpan = document.getElementById('event-link');
-      linkSpan.textContent = window.location.href;
-
-      document.getElementById('show-btn').addEventListener('click', () => {
-        const select = document.getElementById('participant-select');
-        const name = select.value;
-        const errorEl = document.getElementById('participant-error');
-        const resultBox = document.getElementById('result-box');
-        errorEl.textContent = '';
-
-        if (!name) {
-          errorEl.textContent = 'Lütfen önce listeden kendi ismini seç.';
-          resultBox.style.display = 'none';
-          return;
-        }
-
-        const index = participants.indexOf(name);
-        if (index === -1) {
-          errorEl.textContent = 'İsim listesinde bir sorun var, sayfayı yenilemeyi deneyin.';
-          resultBox.style.display = 'none';
-          return;
-        }
-
-        const permutation = makeDerangement(participants, seed);
-        const assignedIndex = permutation[index];
-        const targetName = participants[assignedIndex];
-
-        resultBox.innerHTML = `
-          <h3>Sonuç:</h3>
-          <p><strong>${name}</strong> olarak senin hediye alacağın kişi:</p>
-          <p style="font-size:1.3rem; font-weight:700; margin-top:0.4rem;">🎁 ${targetName}</p>
-          <p style="font-size:0.85rem; color:#333; margin-top:0.8rem;">
-            Bu sonucu bir yere not et. Sayfayı yenilersen tekrar aynı ismi göreceksin
-            ama başkalarının kime çıktığını buradan göremezsin.
-          </p>
-        `;
-        resultBox.style.display = 'block';
-
-        // Aynı tarayıcıda "bir kere görsün" istiyorsan, buraya localStorage logic ekleyebilirsin.
-      });
-
-      document.getElementById('copy-link-btn').addEventListener('click', async () => {
-        const url = window.location.href;
-        try {
-          await navigator.clipboard.writeText(url);
-          alert('Etkinlik linki kopyalandı. WhatsApp gruba yapıştırabilirsin.');
-        } catch (e) {
-          alert('Kopyalama başarısız oldu, linki elle seçip kopyalayabilirsiniz.');
-        }
-      });
-
-      document.getElementById('back-btn').addEventListener('click', () => {
-        // Hash'i temizle, yeni etkinlik ekranına dön
-        history.pushState("", document.title, window.location.pathname + window.location.search);
-        renderCreateView();
-      });
-
-      if (justCreated) {
-        // sayfa yeni oluşturulduysa, kullanıcının direkt linki paylaşabileceğini hatırlatabiliriz
-        // (alert yerine üstteki info-box zaten yeterli, o yüzden ekstra bir şey yapmıyoruz)
-      }
-    }
-
-    // ---------- Başlangıç ----------
-
-    function init() {
-      const eventData = getEventFromUrl();
-      if (eventData) {
-        renderParticipantView(eventData, false);
-      } else {
-        renderCreateView();
-      }
-    }
-
-    window.addEventListener('hashchange', init);
-    init();
-  </script>
-</body>
-</html>
+        <input id="event-budget" type="num
